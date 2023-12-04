@@ -1,0 +1,121 @@
+openapi: 3.0.0
+info:
+  title: BoltDB Key-Value Store API
+  version: 1.0.0
+  description: API for managing a key-value store using BoltDB.
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      description: Serve Home Page
+      responses:
+        '200':
+          description: Successfully served page
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "<html><body><h1>Bolt API</h1></body></html>"
+  /key:
+    post:
+      summary: Create a new key-value pair
+      operationId: createKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - key
+                - value
+              properties:
+                key:
+                  type: string
+                value:
+                  type: string
+                bucket:
+                  type: string
+                  default: "MyBucket"
+      responses:
+        '201':
+          description: Key-value pair created successfully
+        '400':
+          description: Key already exists
+  /key/{key}:
+    get:
+      summary: Retrieve a value by key
+      operationId: getKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: bucket
+          in: query
+          schema:
+            type: string
+            default: "MyBucket"
+      responses:
+        '200':
+          description: Value retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: string
+        '404':
+          description: Key not found
+    put:
+      summary: Update an existing key-value pair
+      operationId: updateKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  type: string
+                bucket:
+                  type: string
+                  default: "MyBucket"
+      responses:
+        '200':
+          description: Key-value pair updated successfully
+        '404':
+          description: Key does not exist
+  /keys:
+    get:
+      summary: Get all key-value pairs
+      operationId: getAllKeys
+      parameters:
+        - name: bucket
+          in: query
+          schema:
+            type: string
+            default: "MyBucket"
+      responses:
+        '200':
+          description: List of all key-value pairs
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+servers:
+  - url: http://localhost:8080
+    description: Development server
